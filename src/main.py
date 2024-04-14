@@ -1,17 +1,21 @@
 from script import *
 import os 
+
 def main():
-    video_url = "https://www.youtube.com/watch?v=_lMpneeo438"
+    video_url = "https://www.youtube.com/watch?v=IfpAjsytwy0x"
     output_path = os.path.expanduser("src/audio")
 
     # Extracts the audio from a youtube video.
-    download_audio_from_youtube(video_url, output_path)
+    title = download_audio_from_youtube(video_url, output_path)
 
     # Converts the extracted audio to text and stores it. 
-    text = speech_to_text("src/audio/audio.mp3")
+    extracted_text = speech_to_text(f"src/audio/{title}.mp3")
 
-    # summarize the text.
-    summarize_text(text)
-    
+    # Summarize the text.
+    summary = summarize_text(extracted_text)
+
+    # Saves the summarized text to a txt file
+    save_output_to_txt(summary, title)
+
 if __name__ == "__main__":
     main()
