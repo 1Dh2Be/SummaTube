@@ -2,7 +2,7 @@ from script import *
 import os 
 
 def main():
-    video_url = "https://www.youtube.com/watch?v=VRgAGGfrAbU"
+    video_url = "https://www.youtube.com/watch?v=zcUGLp5vwaQ"
     output_path = os.path.expanduser("src/audio")
 
     # Extracts the audio from a youtube video.
