@@ -2,6 +2,7 @@ import os
 import yt_dlp as youtube_dl
 import assemblyai as aai
 import anthropic
+from api_keys import api_key_aai, api_key_anthropic
 
 def download_audio_from_youtube(video_url, output_path):
     
@@ -13,23 +14,23 @@ def download_audio_from_youtube(video_url, output_path):
             'preferredquality': '192',
         }],
         'ffmpeg_location': '/opt/homebrew/bin/ffmpeg',
-        'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),
+        'outtmpl': os.path.join(output_path, '%(id)s.%(ext)s'),
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(video_url, download=True)
-        title = info['title']
+        title = info['id']
         print(f"Audio downloaded from {video_url} and saved as {title}")
     return title
 
 def speech_to_text(file):
-    aai.settings.api_key = "3b001a9f39e04c1e8b1accd33d9f84ef"
+    aai.settings.api_key = api_key_aai
     transcriber = aai.Transcriber()
     transcript = transcriber.transcribe(file)
     text = transcript.text
     return text
 
 def summarize_text(text):
-    client = anthropic.Anthropic(api_key="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")
+    client = anthropic.Anthropic(api_key=api_key_anthropic)
 
     message = client.messages.create(
         model="claude-3-haiku-20240307",
