@@ -2,7 +2,7 @@ from script import *
 import os 
 
 def main():
-    video_url = "https://www.youtube.com/watch?v=zcUGLp5vwaQ"
+    video_url = "https://www.youtube.com/watch?v=cY_LIYnEqO4"
     output_path = os.path.expanduser("src/audio")
 
     # Extracts the audio from a youtube video.
@@ -12,10 +12,10 @@ def main():
     extracted_text = speech_to_text(f"src/audio/{title}.mp3")
 
     # Summarize the text.
-    summary = summarize_text(extracted_text)
+    summarize_text(extracted_text)
 
-    # Saves the summarized text to a txt file
-    save_output_to_txt(summary, title)
+    # Let's the user ask questions relative to the text. 
+    ask_question(extracted_text)
 
 if __name__ == "__main__":
     main()
