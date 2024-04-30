@@ -1,2 +1,5 @@
 /src/__pycache__
 /src/api_keys.py
+/database/__pycache__
+/database/test.py
+/src/main.py

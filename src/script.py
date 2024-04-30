@@ -33,28 +33,67 @@ def speech_to_text(file):
     text = transcript.text
     return text
 
-def summarize_text(text):
+def get_completion(api_endpoint=None, conversation_history=None, model="claude-3-sonnet-20240229", max_tokens=1024, stop_sequences=["\n\nHuman:"], stream=False):
     client = anthropic.Anthropic(api_key=api_key_anthropic)
 
+    if api_endpoint == "completions":
+        response = client.completions.create(
+            prompt="".join(conversation_history),
+            model=model,
+            max_tokens_to_sample=max_tokens,
+            stop_sequences=stop_sequences,
+            stream=stream,
+        )
+    elif api_endpoint == "messages":
+        response = client.messages.stream(
+            messages=conversation_history,
+            model=model,
+            max_tokens=max_tokens,
+            stop_sequences=stop_sequences,
+        )
+    else:
+        raise ValueError(f"Invalid API endpoint: {api_endpoint}")
+
+    return response
+
+def summarize_text(text):
+    conversation_history = [
+        {"role": "user", "content": f"I want you to summarize as best as possible the following text: {text}"},
+    ]
+
+    genres = ["News", "Sports", "Technology", "Entertainment", "Politics", "Science", "Health", "Business", "Education", "Travel"]
+
+    client = anthropic.Anthropic(api_key=api_key_anthropic)
     with client.messages.stream(
         model="claude-3-sonnet-20240229",
         max_tokens=1024,
-        temperature=0,
-        messages=[
-            {"role": "user", "content": f"Summarize the following text: {text}"}
-        ]
+        messages=conversation_history
     ) as stream:
-        print("\n")
+        summary = ""
         for text in stream.text_stream:
             print(text, end="", flush=True)
+            summary += text
         print("\n")
+        conversation_history.append({"role": "assistant", "content": summary})
+    
+    conversation_history.append({"role": "user", "content": f"Given this list of genres: {", ".join(genres)}. Which suits the best this text ? If no genres are appropriate, give one! Avoid giving context, I want only a one word genre, I don't want to know why or whatsoever, just give a genre either one in the genres I gave you or one more appropriate from your side!! Remember I want only to see one genre nothing else."})
+    with client.messages.stream(
+        model="claude-3-sonnet-20240229",
+        max_tokens=1024,
+        messages=conversation_history
+    ) as stream:
+        genre = ""
+        for text in stream.text_stream:
+            print(text, end="", flush=True)
+            genre += text
+        print("\n")
+        conversation_history.append({"role": "assistant", "content": genre})
+    return genre, summary
 
 def ask_question(text):
     conversation_history = [
-        f"Here is a text: {text}",
-        "Based on the given text, I will ask you a series of questions. Please provide concise and relevant answers.",
-        "\n\nHuman: Let's begin the conversation.",
-        "\n\nAssistant: Understood. Please go ahead and ask your questions based on the provided text. I'll do my best to provide relevant and concise answers.",
+        {"role": "user", "content": f"Based on the given text {text}, I will ask you a series of questions. Please provide concise and relevant answers."},
+        {"role": "assistant", "content": "Understood. Please go ahead and ask your questions based on the provided text. I'll do my best to provide relevant and concise answers."},
     ]
 
     while True:
@@ -63,24 +102,20 @@ def ask_question(text):
         if question.lower() == "quit":
             break
 
-        conversation_history.append(f"\n\nHuman: {question}")
-        conversation_history.append("\n\nAssistant:")
+        conversation_history.append({"role": "user", "content": question})
 
         client = anthropic.Anthropic(api_key=api_key_anthropic)
-        response = client.completions.create(
-            prompt="".join(conversation_history),
-            model="claude-v1",
-            max_tokens_to_sample=350,
-            stop_sequences=["\n\nHuman:"],
-            stream=True,
-        )
+        with client.messages.stream(
+            messages=conversation_history,
+            model="claude-3-sonnet-20240229",
+            max_tokens=1000,
+        ) as stream:
+            print("\nAssistant:", end=" ")
+            assistant_response = ""
+            for text in stream.text_stream:
+                print(text, end="", flush=True)
+                assistant_response += text
+            print("\n")
+            conversation_history.append({"role": "assistant", "content": assistant_response})
 
-        print("\nAssistant:", end=" ")
-        assistant_response = ""
-        for data in response:
-            token = data.completion
-            print(token, end="", flush=True)
-            assistant_response += token
-        print("\n")
-
-        conversation_history[-1] += f" {assistant_response.strip()}"
+    return conversation_history
