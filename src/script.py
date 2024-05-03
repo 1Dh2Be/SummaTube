@@ -3,7 +3,7 @@ import sys
 import yt_dlp as youtube_dl
 import assemblyai as aai
 import anthropic
-from api_keys import api_key_aai, api_key_anthropic
+from api_keys import ASSEMBLYAI_API_KEY, ANTHROPIC_API_KEY
 
 current_path = os.getcwd()
 
@@ -34,7 +34,7 @@ def download_audio_from_youtube(video_url, output_path):
     return id, title
 
 def speech_to_text(file):
-    aai.settings.api_key = api_key_aai
+    aai.settings.api_key = ASSEMBLYAI_API_KEY
     transcriber = aai.Transcriber()
     transcript = transcriber.transcribe(file)
     text = transcript.text
@@ -42,7 +42,7 @@ def speech_to_text(file):
     return text
 
 def get_completion(conversation_history, question: bool = True):
-    client = anthropic.Anthropic(api_key=api_key_anthropic)
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     if question:
         with client.messages.stream(
             messages=conversation_history,
