@@ -1,11 +1,17 @@
 import os
+import sys
 import yt_dlp as youtube_dl
 import assemblyai as aai
 import anthropic
 from api_keys import api_key_aai, api_key_anthropic
 
-def download_audio_from_youtube(video_url, output_path):
+current_path = os.getcwd()
 
+sys.path.append(current_path)
+
+from database import genre_db
+
+def download_audio_from_youtube(video_url, output_path):
     print("Downloading audio...")
     
     ydl_opts = {
@@ -22,72 +28,69 @@ def download_audio_from_youtube(video_url, output_path):
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(video_url, download=True)
-        title = info['id']
-        print(f"Audio downloaded from {video_url} and saved as {title}")
-    return title
+        id = info['id']
+        title = info['title']
+        print(f"Audio downloaded from {video_url} and saved as {id}")
+    return id, title
 
 def speech_to_text(file):
     aai.settings.api_key = api_key_aai
     transcriber = aai.Transcriber()
     transcript = transcriber.transcribe(file)
     text = transcript.text
+    os.remove(file)
     return text
 
-def get_completion(api_endpoint=None, conversation_history=None, model="claude-3-sonnet-20240229", max_tokens=1024, stop_sequences=["\n\nHuman:"], stream=False):
+def get_completion(conversation_history, question: bool = True):
     client = anthropic.Anthropic(api_key=api_key_anthropic)
-
-    if api_endpoint == "completions":
-        response = client.completions.create(
-            prompt="".join(conversation_history),
-            model=model,
-            max_tokens_to_sample=max_tokens,
-            stop_sequences=stop_sequences,
-            stream=stream,
-        )
-    elif api_endpoint == "messages":
-        response = client.messages.stream(
+    if question:
+        with client.messages.stream(
             messages=conversation_history,
-            model=model,
-            max_tokens=max_tokens,
-            stop_sequences=stop_sequences,
-        )
+            model="claude-3-sonnet-20240229",
+            max_tokens=1000,
+        ) as stream:
+            print("\nAssistant:", end=" ")
+            assistant_response = ""
+            for text in stream.text_stream:
+                print(text, end="", flush=True)
+                assistant_response += text
+            print("\n")
+            return assistant_response
     else:
-        raise ValueError(f"Invalid API endpoint: {api_endpoint}")
-
-    return response
+        with client.messages.stream(
+            model="claude-3-sonnet-20240229",
+            max_tokens=1024,
+            messages=conversation_history
+        ) as stream:
+            response = ""
+            for text in stream.text_stream:
+                print(text, end="", flush=True)
+                response += text
+            print("\n")
+            return response
 
 def summarize_text(text):
+    conn = genre_db.connect()
+    genres = genre_db.get_genres(conn)
+
     conversation_history = [
         {"role": "user", "content": f"I want you to summarize as best as possible the following text: {text}"},
     ]
 
-    genres = ["News", "Sports", "Technology", "Entertainment", "Politics", "Science", "Health", "Business", "Education", "Travel"]
+    summary = get_completion(conversation_history, question=False)
+    conversation_history.append({"role": "assistant", "content": summary})
 
-    client = anthropic.Anthropic(api_key=api_key_anthropic)
-    with client.messages.stream(
-        model="claude-3-sonnet-20240229",
-        max_tokens=1024,
-        messages=conversation_history
-    ) as stream:
-        summary = ""
-        for text in stream.text_stream:
-            print(text, end="", flush=True)
-            summary += text
-        print("\n")
-        conversation_history.append({"role": "assistant", "content": summary})
-    
+
     conversation_history.append({"role": "user", "content": f"Given this list of genres: {", ".join(genres)}. Which suits the best this text ? If no genres are appropriate, give one! Avoid giving context, I want only a one word genre, I don't want to know why or whatsoever, just give a genre either one in the genres I gave you or one more appropriate from your side!! Remember I want only to see one genre nothing else."})
-    with client.messages.stream(
-        model="claude-3-sonnet-20240229",
-        max_tokens=1024,
-        messages=conversation_history
-    ) as stream:
-        genre = ""
-        for text in stream.text_stream:
-            print(text, end="", flush=True)
-            genre += text
-        print("\n")
-        conversation_history.append({"role": "assistant", "content": genre})
+    
+    genre = get_completion(conversation_history, question=False)
+    conversation_history.append({"role": "assistant", "content": genre})
+
+    if genre not in genres:
+        genre_db.add_genre(conn, genre)
+    else:
+        pass
+
     return genre, summary
 
 def ask_question(text):
@@ -104,18 +107,7 @@ def ask_question(text):
 
         conversation_history.append({"role": "user", "content": question})
 
-        client = anthropic.Anthropic(api_key=api_key_anthropic)
-        with client.messages.stream(
-            messages=conversation_history,
-            model="claude-3-sonnet-20240229",
-            max_tokens=1000,
-        ) as stream:
-            print("\nAssistant:", end=" ")
-            assistant_response = ""
-            for text in stream.text_stream:
-                print(text, end="", flush=True)
-                assistant_response += text
-            print("\n")
-            conversation_history.append({"role": "assistant", "content": assistant_response})
+        assistant_response = get_completion(conversation_history)
+        conversation_history.append({"role": "assistant", "content": assistant_response})
 
     return conversation_history

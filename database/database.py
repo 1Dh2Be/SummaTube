@@ -31,15 +31,15 @@ def create_tables(connection):
     with connection:
         connection.execute(CREATE_VIDEO_SUMMARIES_TABLE)
 
-def add_summary(connection, id, title, url, genre, summary,):
+def add_summary(connection, id, title, url, genre, summary):
     with connection:
         connection.execute(INSERT_SUMMARIZATION, (title, url, genre, summary, id,))
 
-def add_questions_answers(connection, id, questions_answers,):
+def add_questions_answers(connection, id, questions_answers):
     with connection:
         connection.execute(INSERT_QUESTIONS, (questions_answers, id,))
 
-def add_text(connection, id,  text,):
+def add_text(connection, id,  text):
     with connection:
         connection.execute(INSERT_TEXT, (text, id,))
 

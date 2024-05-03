@@ -48,7 +48,7 @@ def menu():
             output_path = os.path.expanduser("src/audio")
             video_url = input("Enter video URL: ")
             global title
-            title = script.download_audio_from_youtube(video_url, output_path)
+            id_video, title = script.download_audio_from_youtube(video_url, output_path)
         elif user_input == "2":
             print("Exiting the program...")
             return
@@ -56,7 +56,7 @@ def menu():
             print("Please Enter a valid number!")
     
     # Converts the extracted audio to text and stores it. 
-    extracted_text = script.speech_to_text(f"src/audio/{title}.mp3")
+    extracted_text = script.speech_to_text(f"src/audio/{id_video}.mp3")
 
     while True:
         print("\n")
@@ -66,7 +66,7 @@ def menu():
             print("\n", extracted_text, "\n")
 
             database.add_text(connection, extracted_text, id)
-            time.sleep(3)
+            time.sleep(1)
 
         elif user_input == "2":
             
@@ -74,7 +74,7 @@ def menu():
             # Summarize the text.
             genre, summary = script.summarize_text(extracted_text)
 
-            database.add_text(connection, extracted_text, id)
+            database.add_text(connection, id, extracted_text)
             database.add_summary(connection, id, title, video_url, genre, summary)
 
         elif user_input == "3":
