@@ -17,7 +17,7 @@ The application utilizes **Anthropic's API** for generating accurate summaries a
 
 ### Prerequisites
 - [Python 3.9+](https://www.python.org/downloads): The programming language used for the project.
-- [Anaconda](https://www.anaconda.com/download/success): Used to download and manage dependencies.
+- [pip](https://pip.pypa.io/en/stable/installation/): Used to download and manage dependencies.
 
 ### Installation
 
