@@ -107,4 +107,4 @@ Additionally, you can get the text of the video by entering `1`
 
 ---
 
-For any further questions or inquiries, please contact me on [LinkedIn](www.linkedin.com/in/mimoun-atmani).
+For any further questions or inquiries, please contact me on [LinkedIn](https://www.linkedin.com/in/mimoun-atmani/).
