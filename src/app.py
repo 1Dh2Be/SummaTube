@@ -92,4 +92,6 @@ def menu():
             break
         else:
             print("Please enter a valid number! ")
-menu()
+
+if __name__ == "__main__":
+    menu()

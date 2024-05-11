@@ -12,6 +12,19 @@ INSERT_ID = "INSERT INTO genres (ID_Genre) VALUES (?);"
 GET_GENRES = "SELECT genre FROM genres;"
 
 def connect():
+    """
+    Establishes and returns a connection to the genres database.
+
+    This function constructs the path to the 'genres.db' database file based on the current script's directory,
+    and then establishes a connection to the SQLite database.
+
+    Returns:
+        sqlite3.Connection: A connection object to the genres database.
+
+    Example:
+        conn = connect()
+        print("Database connection established.")
+    """
 
     # Get the directory of the current script
     script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -22,10 +35,39 @@ def connect():
     return sqlite3.connect(db_path)
 
 def create_tables(connection):
+    """
+    Creates the genres table in the database if it does not already exist.
+
+    Parameters:
+        connection (sqlite3.Connection): The database connection object.
+
+    Returns:
+        None: This function does not return a value but creates a table in the database.
+
+    Example:
+        conn = connect()
+        create_tables(conn)
+    """
+
     with connection:
         connection.execute(CREATE_GENRES_TABLE)
 
 def get_genres(connection):
+    """
+    Retrieves all genres from the genres table.
+
+    Parameters:
+        connection (sqlite3.Connection): The database connection object.
+
+    Returns:
+        list: A list of genre names stored in the database.
+
+    Example:
+        conn = connect()
+        genres = get_genres(conn)
+        print(genres)
+    """
+        
     with connection:
         genres = connection.execute(GET_GENRES).fetchall()
         list_genres = []
@@ -34,11 +76,41 @@ def get_genres(connection):
         return list_genres
     
 def add_genre(connection, genre):
+    """
+    Adds a new genre to the genres table.
+
+    Parameters:
+        connection (sqlite3.Connection): The database connection object.
+        genre (str): The name of the genre to add.
+
+    Returns:
+        None: This function does not return a value but inserts a new genre into the database.
+
+    Example:
+        conn = connect()
+        add_genre(conn, "Science Fiction")
+    """
+
     with connection:
         connection.execute(INSERT_GENRE, (genre,))
 
 
 def add_id(connection, id):
+    """
+    Adds a new row with the specified ID to the genres table.
+
+    Parameters:
+        connection (sqlite3.Connection): The database connection object.
+        id (int): The ID to add.
+
+    Returns:
+        None: This function does not return a value but inserts a new ID into the database.
+
+    Example:
+        conn = connect()
+        add_id(conn, 101)
+    """
+        
     with connection:
         connection.execute(INSERT_ID, (id,))
 
