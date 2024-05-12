@@ -34,6 +34,21 @@ Please choose one of this options:
 Your selection: """
 
 def menu():
+    """
+    Provides an interactive menu for the SummaTube application.
+
+    This function handles user input to download a YouTube video, extract the audio, 
+    convert to text, summarize, ask questions, and store results in a database.
+
+    It establishes a connection to the SQLite database, gets the next available row id, 
+    prompts the user for a YouTube URL, downloads the audio, extracts text, allows the 
+    user to view the text and generate a summary and Q&A. The text, summary, and Q&A 
+    are stored in the database before exiting.
+
+    Returns:
+        None: This function does not return a value.
+    """
+    
     connection = database.connect()
     database.create_tables(connection)
 

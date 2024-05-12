@@ -20,10 +20,6 @@ def connect():
 
     Returns:
         sqlite3.Connection: A connection object to the genres database.
-
-    Example:
-        conn = connect()
-        print("Database connection established.")
     """
 
     # Get the directory of the current script
@@ -43,10 +39,6 @@ def create_tables(connection):
 
     Returns:
         None: This function does not return a value but creates a table in the database.
-
-    Example:
-        conn = connect()
-        create_tables(conn)
     """
 
     with connection:
@@ -61,11 +53,6 @@ def get_genres(connection):
 
     Returns:
         list: A list of genre names stored in the database.
-
-    Example:
-        conn = connect()
-        genres = get_genres(conn)
-        print(genres)
     """
         
     with connection:
@@ -85,10 +72,6 @@ def add_genre(connection, genre):
 
     Returns:
         None: This function does not return a value but inserts a new genre into the database.
-
-    Example:
-        conn = connect()
-        add_genre(conn, "Science Fiction")
     """
 
     with connection:
@@ -105,10 +88,6 @@ def add_id(connection, id):
 
     Returns:
         None: This function does not return a value but inserts a new ID into the database.
-
-    Example:
-        conn = connect()
-        add_id(conn, 101)
     """
         
     with connection:

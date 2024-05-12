@@ -22,10 +22,6 @@ def connect():
 
     Returns:
         sqlite3.Connection: A connection object to the SummaTube database.
-
-    Example:
-        conn = connect()
-        print("Database connection established.")
     """
 
      # Get the directory of the current script
@@ -49,10 +45,6 @@ def create_tables(connection):
 
     Returns:
         None: This function does not return a value but creates a table in the database.
-
-    Example:
-        conn = sqlite3.connect('example.db')
-        create_tables(conn)
     """
 
     with connection:
@@ -72,10 +64,6 @@ def add_summary(connection, id, title, url, genre, summary):
 
     Returns:
         None: This function does not return a value but updates the database.
-
-    Example:
-        conn = sqlite3.connect('example.db')
-        add_summary(conn, 101, "Sample Video", "http://example.com", "Education", "This is a summary.")
     """
 
     with connection:
@@ -92,10 +80,6 @@ def add_questions_answers(connection, id, questions_answers):
 
     Returns:
         None: This function does not return a value but updates the database.
-
-    Example:
-        conn = sqlite3.connect('example.db')
-        add_questions_answers(conn, 101, '{"What is the main topic?": "Science"}')
     """
 
     with connection:
@@ -112,10 +96,6 @@ def add_text(connection, id,  text):
 
     Returns:
         None: This function does not return a value but updates the database.
-
-    Example:
-        conn = sqlite3.connect('example.db')
-        add_text(conn, 101, "Here is some example text from the video.")
     """
 
     with connection:
@@ -131,11 +111,6 @@ def get_last_row(connection):
 
     Returns:
         int: The id of the last row in the video summaries table.
-
-    Example:
-        conn = sqlite3.connect('example.db')
-        last_id = get_last_row(conn)
-        print(f"Last row id: {last_id}")
     """
 
     with connection:
@@ -152,10 +127,6 @@ def add_id(connection, id):
 
     Returns:
         None: This function does not return a value but inserts a new row in the database.
-
-    Example:
-        conn = sqlite3.connect('example.db')
-        add_id(conn, 102)
     """
     
     with connection:
